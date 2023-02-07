@@ -1,6 +1,7 @@
 package javaML.supervised.structures.networkElements.recurrent;
 
-import javaML.supervised.Network;
+import javaML.supervised.Activation;
+import javaML.supervised.LayerType;
 import javaML.supervised.structures.Matrix;
 import javaML.supervised.structures.Vector;
 import javaML.supervised.structures.networkElements.ffLayerTypes.HiddenLayer;
@@ -30,7 +31,7 @@ public class RecurrentLayer extends HiddenLayer{
 	 * to declare activation type)
 	 * @param bias Boolean for whether or not to include a bias in the values vector
 	 */
-	public RecurrentLayer(int layerSize, int memoryLength, int activationCode, boolean bias) {
+	public RecurrentLayer(int layerSize, int memoryLength, Activation activationCode, boolean bias) {
 		super(layerSize, memoryLength, activationCode, bias);
 	}
 
@@ -83,7 +84,7 @@ public class RecurrentLayer extends HiddenLayer{
 	
 	@Override
 	public String toString() {
-		return String.format("%d,%d,%d,%d\n", Network.RECURRENT, layerSize, activationCode, bias ? 1 : 0);
+		return String.format("%s,%d,%s,%d\n", LayerType.RECURRENT, layerSize, activationCode, bias ? 1 : 0);
 	}
 	
 }

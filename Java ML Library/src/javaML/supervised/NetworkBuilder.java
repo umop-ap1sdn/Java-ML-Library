@@ -57,15 +57,15 @@ public class NetworkBuilder {
 	/**
 	 * Function to add a new layer to the in progress network
 	 * @param layerType Declares what type of layer to be created<br>
-	 * Use constants from the network class to define which layer type to create<br>
-	 * Use Network.INPUT, Network.HIDDEN, Network.OUTPUT to declare different layers
+	 * Use the LayerType enum to define which layer type to create<br>
+	 * Use LayerType.INPUT, LayerType.HIDDEN, LayerType.RECURRENT or LayerType.OUTPUT to declare different layers
 	 * @param layerSize Declares the size of the layer not including a bias the user may or may not 
 	 * choose to employ
 	 * @param activation Declares the activation function to be used by the layer<br>
 	 * This parameter is ignored when declaring Input layers since input layers can only use linear 
 	 * activations<br>
-	 * Use constants from the network class to define which activation function to be used
-	 * These constants consist of Network.LINEAR, Network.RELU, Network.SIGMOID, and Network.TANH
+	 * Use the Activation enum to define which activation function to be used
+	 * These constants consist of Activation.LINEAR, Activation.RELU, Activation.SIGMOID, and Activation.TANH
 	 * @param bias boolean value for whether to include a bias in the the layer<br>
 	 * Bias nodes are nodes which connect to the layer ahead of itself<br>
 	 * If the layer type is an output layer this parameter is ignored because biases are irrelevant
@@ -81,16 +81,19 @@ public class NetworkBuilder {
 	 * </ul>
 	 * 
 	 */
-	public boolean putLayer(int layerType, int layerSize, int activation, boolean bias) {
+	public boolean putLayer(LayerType layerType, int layerSize, Activation activation, boolean bias) {
+		
 		switch(layerType) {
-		case Network.INPUT:
+		case INPUT:
 			return putInputLayer(layerSize, bias);
-		case Network.HIDDEN:
+		case HIDDEN:
 			return putHiddenLayer(layerSize, activation, bias);
-		case Network.RECURRENT:
+		case RECURRENT:
 			return putRecurrentLayer(layerSize, activation, bias);
-		case Network.OUTPUT:
+		case OUTPUT:
 			return putOutputLayer(layerSize, activation);
+		case INVALID:
+			return false;
 		}
 		
 		return false;
@@ -123,7 +126,7 @@ public class NetworkBuilder {
 	 * @param bias boolean for whether a bias is included
 	 * @return true if the layer was successfully created
 	 */
-	private boolean putHiddenLayer(int layerSize, int activation, boolean bias) {
+	private boolean putHiddenLayer(int layerSize, Activation activation, boolean bias) {
 		if(!allowHidden) return false;
 		
 		HiddenLayer hidden = new HiddenLayer(layerSize, memoryLength, activation, bias);
@@ -138,7 +141,7 @@ public class NetworkBuilder {
 		return true;
 	}
 	
-	private boolean putRecurrentLayer(int layerSize, int activation, boolean bias) {
+	private boolean putRecurrentLayer(int layerSize, Activation activation, boolean bias) {
 		if(!allowHidden) return false;
 		
 		RecurrentLayer rLayer = new RecurrentLayer(layerSize, memoryLength, activation, bias);
@@ -163,7 +166,7 @@ public class NetworkBuilder {
 	 * @param activation Activation function to be used by the layer
 	 * @return true if the layer was successfully created
 	 */
-	private boolean putOutputLayer(int layerSize, int activation) {
+	private boolean putOutputLayer(int layerSize, Activation activation) {
 		if(!allowOutput) return false;
 		
 		OutputLayer outputLayer = new OutputLayer(layerSize, memoryLength, activation);
@@ -302,7 +305,7 @@ public class NetworkBuilder {
 		int activation = Integer.parseInt(arr[2]);
 		boolean bias = Integer.parseInt(arr[3]) == 1;
 		
-		bob.putLayer(layerType, layerSize, activation, bias);
+		bob.putLayer(LayerType.getFromVal(layerType), layerSize, Activation.getFromVal(activation), bias);
 	}
 	
 	/**

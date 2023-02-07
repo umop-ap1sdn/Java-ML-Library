@@ -1,7 +1,7 @@
 package javaML.supervised.structures.networkElements;
 
 import java.util.LinkedList;
-import javaML.supervised.Network;
+import javaML.supervised.Activation;
 import javaML.supervised.structures.*;
 
 /**
@@ -23,7 +23,7 @@ public abstract class NeuronLayer {
 	 * Memory Length is a parameter that represents how many time states back in which data will be saved
 	 */
 	protected final int memoryLength;
-	protected final int activationCode;
+	protected final Activation activationCode;
 	protected final int layerSize;
 	protected final int trueSize;
 	
@@ -47,7 +47,7 @@ public abstract class NeuronLayer {
 	 * to declare activation type)
 	 * @param bias Boolean for whether or not to include a bias in the values vector
 	 */
-	protected NeuronLayer(int layerSize, int memoryLength, int activationCode, boolean bias) {
+	protected NeuronLayer(int layerSize, int memoryLength, Activation activationCode, boolean bias) {
 		this.layerSize = layerSize;
 		this.memoryLength = memoryLength;
 		this.activationCode = activationCode;
@@ -102,16 +102,16 @@ public abstract class NeuronLayer {
 	 */
 	private void initializeActivation() {
 		switch(activationCode) {
-		case Network.LINEAR:
+		case LINEAR:
 			function = new Linear();
 			break;
-		case Network.RELU:
+		case RELU:
 			function = new ReLU();
 			break;
-		case Network.SIGMOID:
+		case SIGMOID:
 			function = new Sigmoid();
 			break;
-		case Network.TANH:
+		case TANH:
 			function = new Tanh();
 			break;
 		default:

@@ -1,6 +1,7 @@
 package javaML.supervised.structures.networkElements.ffLayerTypes;
 
-import javaML.supervised.Network;
+import javaML.supervised.Activation;
+import javaML.supervised.LayerType;
 import javaML.supervised.structures.Matrix;
 import javaML.supervised.structures.Vector;
 import javaML.supervised.structures.networkElements.NeuronLayer;
@@ -34,7 +35,7 @@ public class HiddenLayer extends NeuronLayer {
 	 * to declare activation type)
 	 * @param bias Boolean for whether or not to include a bias in the values vector
 	 */
-	public HiddenLayer(int layerSize, int memoryLength, int activationCode, boolean bias) {
+	public HiddenLayer(int layerSize, int memoryLength, Activation activationCode, boolean bias) {
 		super(layerSize, memoryLength, activationCode, bias);
 	}
 	
@@ -61,7 +62,7 @@ public class HiddenLayer extends NeuronLayer {
 
 	@Override
 	public String toString() {
-		return String.format("%d,%d,%d,%d\n", Network.HIDDEN, layerSize, activationCode, bias ? 1 : 0);
+		return String.format("%s,%d,%s,%d\n", LayerType.HIDDEN, layerSize, activationCode, bias ? 1 : 0);
 	}
 	
 }

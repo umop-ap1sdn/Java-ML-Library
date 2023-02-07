@@ -1,6 +1,7 @@
 package javaML.supervised.structures.networkElements.ffLayerTypes;
 
-import javaML.supervised.Network;
+import javaML.supervised.Activation;
+import javaML.supervised.LayerType;
 import javaML.supervised.structures.Matrix;
 import javaML.supervised.structures.Vector;
 import javaML.supervised.structures.networkElements.NeuronLayer;
@@ -36,7 +37,7 @@ public class OutputLayer extends NeuronLayer {
 	 * @param activationCode Identifier for which activation function to use (Use constants from the Network class
 	 * to declare activation type)
 	 */
-	public OutputLayer(int layerSize, int memoryLength, int activationCode) {
+	public OutputLayer(int layerSize, int memoryLength, Activation activationCode) {
 		super(layerSize, memoryLength, activationCode, false);
 	}
 	
@@ -77,7 +78,7 @@ public class OutputLayer extends NeuronLayer {
 
 	@Override
 	public String toString() {
-		return String.format("%d,%d,%d,%d\n", Network.OUTPUT, layerSize, activationCode, bias ? 1 : 0);
+		return String.format("%s,%d,%s,%d\n", LayerType.OUTPUT, layerSize, activationCode, bias ? 1 : 0);
 	}
 	
 }

@@ -18,20 +18,6 @@ import javaML.supervised.structures.networkElements.ffLayerTypes.*;
 
 public class Network {
 	
-	/**
-	 * Publicly accessible constant for activation type
-	 */
-	public static final int LINEAR = 1, RELU = 2, TANH = 3, SIGMOID = 4;
-	
-	/**
-	 * Publicly accessible constant for data normalization codes
-	 */
-	public static final int NONE_NORMALIZE = 9, SIGMOID_NORMALIZE = 10, TANH_NORMALIZE = 11;
-	
-	/**
-	 * Publicly accessible constant for layer type
-	 */
-	public static final int INPUT = 5, HIDDEN = 6, RECURRENT = 7, OUTPUT = 8;
 	private double learning_rate = 0.02;
 	
 	private InputLayer input;
@@ -83,15 +69,15 @@ public class Network {
 	 * { { {Input Data 2}, {Target Output Data 1} }, { {Input Data 2}, {Target Output Data 2} }, ... }
 	 * @param dataset dataset to be loaded
 	 * @param normalizeCode Identifier which states how the dataset will be normalized (if at all).<br>
-	 * Use constants from the Network class to declare which normalization function to use.<br>
-	 * Use Network.NONE_NORMALIZE, Network.SIGMOID_NORMALIZE or Network.TANH_NORMALIZE to specify normalization
+	 * Use the Normalize enum to declare which normalization function to use.<br>
+	 * Use Normalize.NONE_NORMALIZE, Normalize.SIGMOID_NORMALIZE or Normalize.TANH_NORMALIZE to specify normalization
 	 * function
 	 */
-	public void uploadDataset(double[][][] dataset, int normalizeCode) {
+	public void uploadDataset(double[][][] dataset, Normalize normalizeCode) {
 		copyDataset(dataset);
 		
-		if(normalizeCode == Network.SIGMOID_NORMALIZE) normalizeData(1, 0);
-		if(normalizeCode == Network.TANH_NORMALIZE) normalizeData(1, -1);
+		if(normalizeCode == Normalize.SIGMOID_NORMALIZE) normalizeData(1, 0);
+		if(normalizeCode == Normalize.TANH_NORMALIZE) normalizeData(1, -1);
 		
 		this.dataIndex = 0;
 	}
@@ -101,10 +87,11 @@ public class Network {
 	 * @param dataset Array to be deep copied onto the global dataset
 	 */
 	private void copyDataset(double[][][] dataset) {
-		double[][][] tempDataset = new double[dataset.length][dataset[0].length][dataset[0][0].length];
+		double[][][] tempDataset = new double[dataset.length][2][];
 		
 		for(int x = 0; x < dataset.length; x++) {
 			for(int y = 0; y < dataset[x].length; y++) {
+				tempDataset[x][y] = new double[dataset[x][y].length];
 				for(int z = 0; z < dataset[x][y].length; z++) {
 					tempDataset[x][y][z] = dataset[x][y][z];
 				}

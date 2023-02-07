@@ -1,6 +1,7 @@
 package javaML.supervised.structures.networkElements.ffLayerTypes;
 
-import javaML.supervised.Network;
+import javaML.supervised.Activation;
+import javaML.supervised.LayerType;
 import javaML.supervised.structures.Matrix;
 import javaML.supervised.structures.Vector;
 import javaML.supervised.structures.networkElements.NeuronLayer;
@@ -34,7 +35,7 @@ public class InputLayer extends NeuronLayer {
 	 * @param bias Boolean for whether or not to include a bias in the values vector
 	 */
 	public InputLayer(int layerSize, int memoryLength, boolean bias) {
-		super(layerSize, memoryLength, Network.LINEAR, bias);
+		super(layerSize, memoryLength, Activation.LINEAR, bias);
 	}
 	
 	@Override
@@ -70,7 +71,7 @@ public class InputLayer extends NeuronLayer {
 
 	@Override
 	public String toString() {
-		return String.format("%d,%d,%d,%d\n", Network.INPUT, layerSize, activationCode, bias ? 1 : 0);
+		return String.format("%s,%d,%s,%d\n", LayerType.INPUT, layerSize, activationCode, bias ? 1 : 0);
 	}
 	
 }
