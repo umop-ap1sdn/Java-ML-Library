@@ -40,7 +40,7 @@ public class HiddenLayer extends NeuronLayer {
 	}
 	
 	@Override
-	protected void calculateErrors(Vector errorVec, Matrix errorMat) {
+	protected void calculateErrors(Vector errorVec, Matrix errorMat, int memIndex) {
 		//dE/dY of a hidden layer by the chain rule will be equal to
 		//i is a node of the hidden layer
 		//j is a node of the next layer
@@ -50,7 +50,7 @@ public class HiddenLayer extends NeuronLayer {
 		
 		Vector currErrors = Matrix.multiply(conT, errorVec).getAsVector();
 		currErrors = super.removeBias(currErrors);
-		currErrors = Matrix.linearMultiply(currErrors, this.getRecentDerivatives()).getAsVector();
+		currErrors = Matrix.linearMultiply(currErrors, this.getDerivatives(memIndex)).getAsVector();
 		
 		super.addErrors(currErrors);
 	}

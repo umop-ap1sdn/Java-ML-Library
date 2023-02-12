@@ -11,11 +11,11 @@ package javaML.supervised;
  */
 
 public enum LayerType {
-	INVALID(0), // Invalid, Do not use
-	INPUT(5), // Input Layer
-	HIDDEN(6), // Hidden Layer
-	RECURRENT(7), // Recurrent Layer
-	OUTPUT(8); // Output Layer
+	INVALID(0), 	// Invalid, Do not use
+	INPUT(5), 		// Input Layer
+	HIDDEN(6), 		// Hidden Layer
+	RECURRENT(7), 	// Recurrent Layer
+	OUTPUT(8); 		// Output Layer
 	
 
 	

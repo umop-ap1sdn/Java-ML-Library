@@ -29,7 +29,7 @@ public class Network {
 	private int memoryLength;
 	
 	private double[][][] dataset;
-	private int dataIndex = 0;
+	private int dataIndex = 0, dataSize = 0;
 	
 	private double totalLoss = 0, averageLoss = 0;
 	
@@ -80,6 +80,7 @@ public class Network {
 		if(normalizeCode == Normalize.TANH_NORMALIZE) normalizeData(1, -1);
 		
 		this.dataIndex = 0;
+		this.dataSize = dataset.length;
 	}
 	
 	/**
@@ -184,6 +185,23 @@ public class Network {
 		return ret;
 	}
 	
+	
+	
+	
+	// TODO
+	// FIX how errors are calculated by reversing the direction of which error calculation is done
+	// Under the forward in time (current) process, recurrent errors are only passed back 1 layer and
+	// only to its own respective layer
+	//
+	// This means errors are not properly being accounted for in time
+	// Does not affect Feed Forward Networks
+	//
+	// This will be a fairly intensive change
+	
+	
+	
+	
+	
 	/**
 	 * Primary algorithm to be called by the user to train the network<br>
 	 * Network will run through the dataset uploaded to run the forwardPass(), propagateErrors(),
@@ -211,15 +229,16 @@ public class Network {
 			
 			//Test data, calculate errors, add errors to loss value
 			output = test(dataset[dataIndex][0]);
-			propagateError(dataset[dataIndex][1]);
 			calculateLoss(dataset[dataIndex][1], output);
 			
 			//ensure dataIndex never reaches out of bounds for the dataset array
-			dataIndex = (dataIndex + 1) % dataset.length;
+			dataIndex = (dataIndex + 1) % dataSize;
 			
 			//When data is reset an overflow has occurred
 			if(dataIndex == 0 && index < batchSize - 1) overflow = true;
 		}
+		
+		propagateError();
 		
 		//Backpropagate if desired
 		if(backProp && (!dependency || dataIndex >= memoryLength || dataIndex == 0)) {
@@ -254,16 +273,20 @@ public class Network {
 	}
 	
 	/**
-	 * Function to reset the values of each Neuron Layer<br>
+	 * Function to reset the values of each Neuron Layer.<br>
 	 * This will be useful for RNN's whose outputs are influenced by what is already stored in Neuron
 	 * Layer memory
+	 * 
+	 * @param resetDataIndex when set to true dataIndex will be set back to 0
 	 */
-	public void reset() {
+	public void reset(boolean resetDataIndex) {
 		input.reset();
 		output.reset();
 		for(int index = 0; index < hiddenLayers.length; index++) {
 			hiddenLayers[index].reset();
 		}
+		
+		if(resetDataIndex) dataIndex = 0;
 	}
 	
 	/**
@@ -283,21 +306,43 @@ public class Network {
 	}
 	
 	/**
+	 * Function to completely propagate errors at all timesteps.<br>
+	 * Will be called after the entire batch has been passed through as input
+	 */
+	private void propagateError() {
+		int dataPoint = dataIndex - 1; //Most Recent trained point
+		if(dataPoint < 0) dataPoint += dataSize;
+		
+		int memIndexSrt = memoryLength - batchSize;
+		
+		for(int step = batchSize - 1; step >= 0; step--) {
+			propagateErrorStep(memIndexSrt + step, dataset[dataPoint][1]);
+			
+			//System.out.println(memIndexSrt + step + ", " + dataPoint);
+			
+			dataPoint--;
+			if(dataPoint < 0) dataPoint += dataSize;
+		}
+	}
+	
+	/**
 	 * Function to be called only natively by the Network class<br>
 	 * Runs the calculateError function for each Neuron Layer
+	 * @param memIndex Location (timestep) in memory from which to calculate error from.
 	 * @param target array for the target values for a particular set of inputs
 	 */
-	private void propagateError(double[] target) {
+	private void propagateErrorStep(int memIndex, double[] target) {
 		output.setTargets(target);
-		output.calcErrors(null);
+		output.calcErrors(null, memIndex);
 		
 		if(numHidden >= 1) {
-			hiddenLayers[numHidden - 1].calcErrors(output);;
+			hiddenLayers[numHidden - 1].calcErrors(output, memIndex);
 			for(int index = numHidden - 2; index >= 0; index--) {
-				hiddenLayers[index].calcErrors(hiddenLayers[index + 1]);
+				hiddenLayers[index].calcErrors(hiddenLayers[index + 1], memIndex);
 			}
 		}
-		input.calculateErrors(target, null);
+		
+		input.calculateErrors(target, null, 0);
 	}
 	
 	/**
@@ -306,7 +351,13 @@ public class Network {
 	 */
 	private void backpropagate() {
 		output.backpropagation(learning_rate);
-		for(Unit u: hiddenLayers) u.backpropagation(learning_rate);
+		output.purgeErrors(batchSize);			// Purge errors after backpropagation
+		for(Unit u: hiddenLayers) {
+			u.backpropagation(learning_rate);
+			u.purgeErrors(batchSize);			// Purge after backprop
+		}
+		
+		input.purgeErrors(batchSize);
 	}
 	
 	/**

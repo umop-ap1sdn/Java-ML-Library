@@ -11,11 +11,11 @@ package javaML.supervised;
  */
 
 public enum Activation {
-	INVALID(0), // Invalid, do not use
-	LINEAR(1), // Linear activation y = x
-	RELU(2), // ReLU activation {x > 0: y = x; x <= 0: y = 0}
-	TANH(3), // Tanh activation y = tanh(x)
-	SIGMOID(4); // Sigmoid activation y = 1 / (1 + e^(-x))
+	INVALID(0), 	// Invalid, do not use
+	LINEAR(1), 		// Linear activation y = x
+	RELU(2), 		// ReLU activation {x > 0: y = x; x <= 0: y = 0}
+	TANH(3), 		// Tanh activation y = tanh(x)
+	SIGMOID(4); 	// Sigmoid activation y = 1 / (1 + e^(-x))
 	
 	
 	

@@ -37,9 +37,9 @@ public class OutputUnit extends Unit {
 	}
 
 	@Override
-	public void calcErrors(Unit next) {
+	public void calcErrors(Unit next, int memIndex) {
 		//Output layer will always be the final layer, therefore next = null
-		layer.calculateErrors(targets, null);
+		layer.calculateErrors(targets, null, memIndex);
 		
 	}
 	

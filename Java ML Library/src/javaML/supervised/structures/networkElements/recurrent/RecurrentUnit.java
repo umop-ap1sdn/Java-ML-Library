@@ -42,15 +42,16 @@ public class RecurrentUnit extends Unit {
 	}
 
 	@Override
-	public void calcErrors(Unit next) {
-		Vector errorVec = next.getEntry().getRecentErrors();
+	public void calcErrors(Unit next, int memIndex) {
+		Vector errorVec = next.getEntry().getErrors(memIndex);
 		Matrix errorMat = next.getEntryConnections().getMatrix();
 		
-		layer.calculateErrors(errorVec, errorMat);
-		layer.putErrors();
+		layer.calculateErrors(errorVec, errorMat, memIndex);
 		
 		//Calculate additional correction errors of the previous timestep
-		layer.calcRecErrors(rLayer.getMatrix());
+		layer.calcRecErrors(rLayer.getMatrix(), memIndex);
+		
+		layer.putErrors(memIndex);
 		
 	}
 	

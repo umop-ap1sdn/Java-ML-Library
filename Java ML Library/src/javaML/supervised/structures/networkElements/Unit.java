@@ -72,8 +72,9 @@ public abstract class Unit {
 	 * This function is responsible for calculating the errors of a particular unit.
 	 * @param next Next unit is passed as its error typically influences the errors of layers before itself.<br>
 	 * OutputUnit will pass a null since it is the final Unit
+	 * @param memIndex Location (timestep) in memory from which to calculate error from.
 	 */
-	public abstract void calcErrors(Unit next);
+	public abstract void calcErrors(Unit next, int memIndex);
 	
 	/**
 	 * Function to be called only by the Network class.<br>
@@ -98,6 +99,14 @@ public abstract class Unit {
 	 */
 	public void reset() {
 		for(NeuronLayer n: nLayers) n.reset();
+	}
+	
+	/**
+	 * Function to purge the errors of all NeuronLayers held within a Unit
+	 * @param batchSize Network's batch size, is used to determine how far to move the errors.
+	 */
+	public void purgeErrors(int batchSize) {
+		for(NeuronLayer n: nLayers) n.purgeErrors(batchSize);
 	}
 	
 	/**

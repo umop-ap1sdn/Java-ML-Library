@@ -45,12 +45,12 @@ public class InputLayer extends NeuronLayer {
 	}
 	
 	@Override
-	protected void calculateErrors(Vector errorVec, Matrix errorMat) {
+	protected void calculateErrors(Vector errorVec, Matrix errorMat, int memIndex) {
 		//By Definition the input layer does not have an error
 		Vector error = new Vector(this.getLayerSize(), Matrix.FILL_ZERO);
 		error = super.removeBias(error);
 		super.addErrors(error);
-		super.putErrors();
+		super.putErrors(memIndex);
 	}
 	
 	/**

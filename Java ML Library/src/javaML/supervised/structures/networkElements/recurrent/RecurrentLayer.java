@@ -36,7 +36,7 @@ public class RecurrentLayer extends HiddenLayer{
 	}
 
 	@Override
-	protected void calculateErrors(Vector errorVec, Matrix errorMat) {
+	protected void calculateErrors(Vector errorVec, Matrix errorMat, int memIndex) {
 		//dE/dY of a hidden layer by the chain rule will be equal to
 		//i is a node of the hidden layer
 		//j is a node of the next layer
@@ -46,7 +46,7 @@ public class RecurrentLayer extends HiddenLayer{
 		Vector currErrors = Matrix.multiply(conT, errorVec).getAsVector();
 		currErrors = super.removeBias(currErrors);
 		
-		currErrors = Matrix.linearMultiply(currErrors, this.getRecentDerivatives()).getAsVector();
+		currErrors = Matrix.linearMultiply(currErrors, this.getDerivatives(memIndex)).getAsVector();
 		
 		super.addErrors(currErrors);
 	}
@@ -56,15 +56,20 @@ public class RecurrentLayer extends HiddenLayer{
 	 * Because errors are propagated backwards, as each new timestep occurs, there are background errors that
 	 * need to be accounted for from the previous iteration.
 	 * @param recMat Matrix used to determine the errors in the previous timestep
+	 * @param memIndex Location (timestep) in memory from which to calculate error from.
 	 */
-	protected void calcRecErrors(Matrix recMat) {
+	protected void calcRecErrors(Matrix recMat, int memIndex) {
 		Matrix conT = Matrix.transpose(recMat);
 		
-		Vector retroErrors = Matrix.multiply(conT, this.getRecentErrors()).getAsVector();
-		retroErrors = super.removeBias(retroErrors);
-		retroErrors = Matrix.linearMultiply(retroErrors, this.getDerivatives(memoryLength - 2)).getAsVector();
+		Vector futureErrors = new Vector(layerSize, Vector.FILL_ZERO);
 		
-		super.adjustRecentErrors(retroErrors);
+		if(memIndex + 1 != memoryLength) futureErrors = this.getErrors(memIndex + 1);
+		
+		Vector retroErrors = Matrix.multiply(conT, futureErrors).getAsVector();
+		retroErrors = super.removeBias(retroErrors);
+		retroErrors = Matrix.linearMultiply(retroErrors, this.getDerivatives(memIndex)).getAsVector();
+		
+		super.addErrors(retroErrors);
 	}
 
 	@Override

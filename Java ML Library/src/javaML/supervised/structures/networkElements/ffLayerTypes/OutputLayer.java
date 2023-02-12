@@ -52,7 +52,7 @@ public class OutputLayer extends NeuronLayer {
 	//In the current version of the library, the Loss function will be predefined to be Mean Squared Error
 	// 1/n * Summation[i = 0, n]((t-y)^2)
 	@Override
-	protected void calculateErrors(Vector errorVec, Matrix errorMat) {
+	protected void calculateErrors(Vector errorVec, Matrix errorMat, int memIndex) {
 		//errorVec will contain the targetValues for a given test case
 		
 		//Via the chain rule the error of an output layer neuron is given by the 
@@ -62,13 +62,13 @@ public class OutputLayer extends NeuronLayer {
 				
 		double scalar = 2.0 / this.getLayerSize();
 		Vector baseErrors = Matrix.scale(errorVec, -1).getAsVector();
-		baseErrors = Matrix.add(this.getRecentValues(), baseErrors).getAsVector();
+		baseErrors = Matrix.add(this.getValues(memIndex), baseErrors).getAsVector();
 		baseErrors = Matrix.scale(baseErrors, scalar).getAsVector();
 		
-		baseErrors = Matrix.linearMultiply(baseErrors, this.getRecentDerivatives()).getAsVector();
+		baseErrors = Matrix.linearMultiply(baseErrors, this.getDerivatives(memIndex)).getAsVector();
 		
 		super.addErrors(baseErrors);
-		super.putErrors();
+		super.putErrors(memIndex);
 	}
 	
 	@Override

@@ -66,8 +66,9 @@ public abstract class NeuronLayer {
 	 * In the output layer this vector will be the target values, while most other layers will use the errors from
 	 * the next layer.
 	 * @param errorMat Matrix used to help determine the error of a given layer
+	 * @param memIndex Location (timestep) in memory from which to calculate error from.
 	 */
-	protected abstract void calculateErrors(Vector errorVec, Matrix errorMat);
+	protected abstract void calculateErrors(Vector errorVec, Matrix errorMat, int memIndex);
 	
 	/**
 	 * Function to run the activation of a particular layer<br>
@@ -162,10 +163,11 @@ public abstract class NeuronLayer {
 	 * Shortcut function to calculate errors based on arrays instead of vectors and matrices.
 	 * @param errors 1D array (Vector) for the errorVec
 	 * @param matrix 2D array (Matrix) for the errorMat
+	 * @param memIndex Location (timestep) in memory from which to calculate error from.
 	 */
-	public void calculateErrors(double[] errors, double[][] matrix) {
-		if(matrix == null) this.calculateErrors(new Vector(errors), null);
-		else this.calculateErrors(new Vector(errors), new Matrix(matrix));
+	public void calculateErrors(double[] errors, double[][] matrix, int memIndex) {
+		if(matrix == null) this.calculateErrors(new Vector(errors), null, memIndex);
+		else this.calculateErrors(new Vector(errors), new Matrix(matrix), memIndex);
 	}
 	
 	/**
@@ -182,6 +184,7 @@ public abstract class NeuronLayer {
 	 * Shortcut function to get the values at the most recent time step
 	 * @return Vector of the neuron values at the most recent time step
 	 */
+	
 	protected Vector getRecentValues() {
 		if(bias) return padBias(activations.getLast());
 		else return activations.getLast();
@@ -191,8 +194,8 @@ public abstract class NeuronLayer {
 	 * Function to be called only by the native class.<br>
 	 * Takes a vector that represents the activations of a NeuronLayer and adds a 1 valued element to the end of
 	 * the vector. This is done to represent the bias that may or may not exist on a particular layer.
-	 * @param vec
-	 * @return
+	 * @param vec Vector of the values without any bias
+	 * @return Vector of the values with a bias added (if a bias exists)
 	 */
 	private Vector padBias(Vector vec) {
 		double[] vector = new double[trueSize];
@@ -243,11 +246,25 @@ public abstract class NeuronLayer {
 	/**
 	 * Function to add finalize and add the errorVec to the list of memorized error values
 	 */
-	public void putErrors() {
-		errors.addLast(errorVec);
-		errors.pollFirst();
-		
+	public void putErrors(int memIndex) {
+		errors.set(memIndex, errorVec);
 		errorVec = new Vector(layerSize, Matrix.FILL_ZERO);
+	}
+	
+	/**
+	 * Function to be called by the Network class specifically after backpropagation occurs.<br>
+	 * Because of the correction made the the calculation of errors, a reorganization system is added to the 
+	 * errors data structure that allows the errors to stay in-line with its value and derivative counterparts.<br>
+	 * As such, this function is responsible for moving these historical error values around such that this goal
+	 * is achieved.
+	 * @param batchSize Network's batch size, is used to determine how far to move the errors.
+	 */
+	public void purgeErrors(int batchSize) {
+		while(batchSize > 0) {
+			errors.pollFirst();
+			errors.addLast(errorVec);
+			batchSize--;
+		}
 	}
 	
 	/**
@@ -260,38 +277,12 @@ public abstract class NeuronLayer {
 	}
 	
 	/**
-	 * Shortcut function to get the error vector at the most recent time step
-	 * @return Vector of the most recent error values
-	 */
-	public Vector getRecentErrors() {
-		return errors.getLast();
-	}
-	
-	/**
-	 * Function to adjust recently calculated error values.<br>
-	 * Will be used for recurrent types of neural networks
-	 * @param errorVec Vector of errors to adjust recent values
-	 */
-	protected void adjustRecentErrors(Vector errorVec) {
-		int recentIndex = memoryLength - 2;
-		errors.set(recentIndex, Vector.add(errorVec, errors.getLast()));
-	}
-	
-	/**
 	 * Function to get the derivative vector from a given time step
 	 * @param index Time step for which to get the derivative from
 	 * @return Vector of the derivative at the specified time step
 	 */
 	protected Vector getDerivatives(int index) {
 		return derivatives.get(index);
-	}
-	
-	/**
-	 * Shortcut function to get the derivative vector at the most recent time step
-	 * @return Vector of the most recent derivative values
-	 */
-	protected Vector getRecentDerivatives() {
-		return derivatives.getLast();
 	}
 	
 	/**
