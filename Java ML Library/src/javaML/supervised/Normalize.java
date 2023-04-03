@@ -16,51 +16,8 @@ package javaML.supervised;
  */
 
 public enum Normalize {
-	TANH_NORMALIZE(11),
-	SIGMOID_NORMALIZE(10),
-	NONE_NORMALIZE(9),
-	INVALID(0);
-	
-
-
-	
-	
-	
-	/*****************************************
-	 * Remainder of this file is dedicated to
-	 * translating between integer values and
-	 * enum constants
-	 ****************************************/
-	
-	
-	
-	
-	
-	
-	private final int value;
-	private Normalize(int value) {
-		this.value = value;
-	}
-	
-	public int getVal() {
-		return value;
-	}
-	
-	protected static Normalize getFromVal(int value) {
-		switch(value) {
-		case 9:
-			return NONE_NORMALIZE;
-		case 10:
-			return SIGMOID_NORMALIZE;
-		case 11:
-			return TANH_NORMALIZE;
-		default:
-			return INVALID;
-		}
-	}
-	
-	@Override
-	public String toString() {
-		return "" + value;
-	}
+	TANH_NORMALIZE,
+	SIGMOID_NORMALIZE,
+	NONE_NORMALIZE,
+	INVALID;
 }

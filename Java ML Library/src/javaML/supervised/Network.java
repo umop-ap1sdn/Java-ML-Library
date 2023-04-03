@@ -1,5 +1,6 @@
 package javaML.supervised;
 
+import javaML.DataTransformations;
 import javaML.supervised.structures.networkElements.*;
 import javaML.supervised.structures.networkElements.ffLayerTypes.*;
 /**
@@ -29,6 +30,9 @@ public class Network {
 	private int memoryLength;
 	
 	private double[][][] dataset;
+	private double[][][] validationData;
+	
+	
 	private int dataIndex = 0, dataSize = 0;
 	
 	private double totalLoss = 0, averageLoss = 0;
@@ -52,6 +56,8 @@ public class Network {
 		this.numHidden = hiddenLayers.length;
 		
 		this.dataset = null;
+		this.validationData = null;
+		
 	}
 	
 	/**
@@ -62,6 +68,10 @@ public class Network {
 	public void setLearningRate(double lr) {
 		this.learning_rate = lr;
 	}
+	
+	
+	//TODO add dataset uploading options for trend removing using differencing
+	//TODO add separation of dataset into training set and test set
 	
 	/**
 	 * Use this function to upload a user made dataset<br>
@@ -74,132 +84,25 @@ public class Network {
 	 * function
 	 */
 	public void uploadDataset(double[][][] dataset, Normalize normalizeCode) {
-		copyDataset(dataset);
+		int resize = dataset.length - (dataset.length % batchSize);
 		
-		if(normalizeCode == Normalize.SIGMOID_NORMALIZE) normalizeData(1, 0);
-		if(normalizeCode == Normalize.TANH_NORMALIZE) normalizeData(1, -1);
+		double[][][] data = DataTransformations.resize(dataset, resize, false);
+		
+		
+		if(normalizeCode == Normalize.SIGMOID_NORMALIZE) 
+			data = DataTransformations.normalize(data, 1, 0, true);
+		if(normalizeCode == Normalize.TANH_NORMALIZE) 
+			data = DataTransformations.normalize(data, 1, -1, true);
+		
+		double[][][][] placeHolder = DataTransformations.splitDataset(data, data.length - (batchSize * 2), false);
+		
+		this.dataset = placeHolder[0];
+		this.validationData = placeHolder[1];
+		
 		
 		this.dataIndex = 0;
-		this.dataSize = dataset.length;
+		this.dataSize = this.dataset.length;
 	}
-	
-	/**
-	 * Helper function to deep copy the dataset array
-	 * @param dataset Array to be deep copied onto the global dataset
-	 */
-	private void copyDataset(double[][][] dataset) {
-		double[][][] tempDataset = new double[dataset.length][2][];
-		
-		for(int x = 0; x < dataset.length; x++) {
-			for(int y = 0; y < dataset[x].length; y++) {
-				tempDataset[x][y] = new double[dataset[x][y].length];
-				for(int z = 0; z < dataset[x][y].length; z++) {
-					tempDataset[x][y][z] = dataset[x][y][z];
-				}
-			}
-		}
-		
-		this.dataset = tempDataset;
-	}
-	
-	/**
-	 * Function to perform the data normalization algorithm.<br>
-	 * This will be useful for datasets outside of a Neural Networks comfortable operating range.
-	 * Studies have found that scaling data to be within particular ranges (typically [0, 1] or [-1, 1]) tend to
-	 * produce better performing models.
-	 * 
-	 * @param max Desired maximum for scaling
-	 * @param min Desired minimum for scaling
-	 */
-	private void normalizeData(double max, double min) {
-		
-		//Create vectors for the minimum and maximum values at each index in the inputs and targets data
-		double[] inputMax = new double[dataset[0][0].length];
-		double[] inputMin = new double[dataset[0][0].length];
-		
-		double[] outputMax = new double[dataset[0][1].length];
-		double[] outputMin = new double[dataset[0][1].length];
-		
-		//Initialize arrays to the first datapoint of the dataset
-		for(int index = 0; index < inputMax.length; index++) {
-			inputMax[index] = dataset[0][0][index];
-			inputMin[index] = dataset[0][0][index];
-		}
-		
-		for(int index = 0; index < outputMax.length; index++) {
-			outputMax[index] = dataset[0][1][index];
-			outputMin[index] = dataset[0][1][index];
-		}
-		
-		//Search whole array to find the maximums and minimums of each column
-		//This is done by individual columns to acknowledge the fact that any 2 given inputs/outputs may
-		//represent entirely different values and should be treated as unrelated
-		for(int index = 1; index < dataset.length; index++) {
-			for(int indey = 0; indey < dataset[0][0].length; indey++) {
-				if(dataset[index][0][indey] > inputMax[indey]) 
-					inputMax[indey] = dataset[index][0][indey];
-				
-				if(dataset[index][0][indey] < inputMin[indey]) 
-					inputMin[indey] = dataset[index][0][indey];
-				
-			}
-			
-			for(int indey = 0; indey < dataset[0][1].length; indey++) {
-				if(dataset[index][1][indey] > outputMax[indey]) 
-					outputMax[indey] = dataset[index][1][indey];
-				
-				if(dataset[index][1][indey] < outputMin[indey]) 
-					outputMin[indey] = dataset[index][0][indey];
-				
-			}
-		}
-		
-		//Lastly, perform normalization on each element of the dataset
-		for(int index = 0; index < dataset.length; index++) {
-			for(int indey = 0; indey < dataset[0][0].length; indey++) {
-				dataset[index][0][indey] = normalize(dataset[index][0][indey], inputMax[indey], inputMin[indey],
-						max, min);
-			}
-			
-			for(int indey = 0; indey < dataset[0][1].length; indey++) {
-				dataset[index][1][indey] = normalize(dataset[index][1][indey], outputMax[indey], outputMin[indey],
-						max, min);
-			}
-		}
-	}
-	
-	/**
-	 * Helper function to perform the actual normalization
-	 * @param x Value to be normalized
-	 * @param oldMax Maximum value from the dataset
-	 * @param oldMin Minimum value from the dataset
- 	 * @param newMax Desired maximum value
-	 * @param newMin Desired minimum value
-	 * @return Returns a normalized value within the range [newMax, oldMax]
-	 */
-	private double normalize(double x, double oldMax, double oldMin, double newMax, double newMin) {
-		double ret = (x - oldMin) / (oldMax - oldMin);
-		ret *= (newMax - newMin);
-		ret += newMin;
-		
-		return ret;
-	}
-	
-	
-	
-	
-	// TODO
-	// FIX how errors are calculated by reversing the direction of which error calculation is done
-	// Under the forward in time (current) process, recurrent errors are only passed back 1 layer and
-	// only to its own respective layer
-	//
-	// This means errors are not properly being accounted for in time
-	// Does not affect Feed Forward Networks
-	//
-	// This will be a fairly intensive change
-	
-	
-	
 	
 	
 	/**
@@ -250,6 +153,17 @@ public class Network {
 		return overflow;
 	}
 	
+	public double trainEpoch(boolean backProp, boolean dependency) {
+		for(int i = 0; i * batchSize < dataSize; i++) {
+			train(backProp, dependency);
+		}
+		
+		double loss = validate();
+		this.reset(true);
+		
+		return loss;
+	}
+	
 	/**
 	 * Basic Train Function that defaults to the specified batch size when training
 	 * @param backProp boolean for whether to backpropagation or not
@@ -260,6 +174,21 @@ public class Network {
 	 */
 	public boolean train(boolean backProp, boolean dependency) {
 		return train(backProp, dependency, batchSize);
+	}
+	
+	public double validate() {
+		totalLoss = 0;
+		averageLoss = 0;
+		double[] output;
+		
+		for(double[][] data: validationData) {
+			output = test(data[0]);
+			calculateLoss(data[1], output);
+		}
+		
+		averageLoss = totalLoss / batchSize;
+		
+		return averageLoss;
 	}
 	
 	/**
