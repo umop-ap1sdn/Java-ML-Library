@@ -35,8 +35,8 @@ public class HiddenUnit extends Unit {
 
 	@Override
 	public void calcErrors(Unit next, int memIndex) {
-		Vector errorVec = next.getEntry().getErrors(memIndex);
-		Matrix errorMat = next.getEntryConnections().getMatrix();
+		Vector errorVec = next.getEntryErrors(memIndex);
+		Matrix errorMat = next.getEntryMatrix();
 		layer.calculateErrors(errorVec, errorMat, memIndex);
 		layer.putErrors(memIndex);
 	}

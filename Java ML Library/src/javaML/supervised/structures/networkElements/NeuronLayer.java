@@ -29,9 +29,9 @@ public abstract class NeuronLayer {
 	
 	protected final boolean bias;
 	
-	private LinkedList<Vector> activations;
-	private LinkedList<Vector> derivatives;
-	private LinkedList<Vector> errors;
+	protected LinkedList<Vector> activations;
+	protected LinkedList<Vector> derivatives;
+	protected LinkedList<Vector> errors;
 	
 	Vector unactivated;
 	Vector errorVec;
@@ -176,6 +176,7 @@ public abstract class NeuronLayer {
 	 * @return Vector of the Neuron Values at the specified time step
 	 */
 	protected Vector getValues(int index) {
+		if(index >= memoryLength || index < 0) return padBias(new Vector(layerSize, Vector.FILL_ZERO));
 		if(bias) return padBias(activations.get(index));
 		else return activations.get(index);
 	}
@@ -197,7 +198,7 @@ public abstract class NeuronLayer {
 	 * @param vec Vector of the values without any bias
 	 * @return Vector of the values with a bias added (if a bias exists)
 	 */
-	private Vector padBias(Vector vec) {
+	protected Vector padBias(Vector vec) {
 		double[] vector = new double[trueSize];
 		double[] vecArr = vec.getVector();
 		
@@ -273,6 +274,8 @@ public abstract class NeuronLayer {
 	 * @return Vector of the errors at the specified time step
 	 */
 	public Vector getErrors(int index) {
+		if(index >= memoryLength || index < 0) return new Vector(layerSize, Vector.FILL_ZERO);
+		
 		return errors.get(index);
 	}
 	

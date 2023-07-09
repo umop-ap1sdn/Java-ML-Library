@@ -31,7 +31,7 @@ public class RecurrentUnit extends Unit {
 	 */
 	public RecurrentUnit(RecurrentLayer nLayer, ConnectionLayer cLayer, RecurrentConnectionLayer rLayer) {
 		super(new NeuronLayer[] {nLayer}, new ConnectionLayer[] {cLayer, rLayer});
-		this.layer = nLayer;
+		this.layer = (RecurrentLayer)super.nLayers[0];
 		this.rLayer = rLayer;
 	}
 
@@ -43,8 +43,8 @@ public class RecurrentUnit extends Unit {
 
 	@Override
 	public void calcErrors(Unit next, int memIndex) {
-		Vector errorVec = next.getEntry().getErrors(memIndex);
-		Matrix errorMat = next.getEntryConnections().getMatrix();
+		Vector errorVec = next.getEntryErrors(memIndex);
+		Matrix errorMat = next.getEntryMatrix();
 		
 		layer.calculateErrors(errorVec, errorMat, memIndex);
 		

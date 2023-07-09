@@ -34,7 +34,8 @@ public class RecurrentLayer extends HiddenLayer{
 	public RecurrentLayer(int layerSize, int memoryLength, Activation activationCode, boolean bias) {
 		super(layerSize, memoryLength, activationCode, bias);
 	}
-
+	
+	/*
 	@Override
 	protected void calculateErrors(Vector errorVec, Matrix errorMat, int memIndex) {
 		//dE/dY of a hidden layer by the chain rule will be equal to
@@ -42,14 +43,13 @@ public class RecurrentLayer extends HiddenLayer{
 		//j is a node of the next layer
 		//dYj * Wij * activationDerivative
 		Matrix conT = Matrix.transpose(errorMat);
-		
 		Vector currErrors = Matrix.multiply(conT, errorVec).getAsVector();
 		currErrors = super.removeBias(currErrors);
-		
 		currErrors = Matrix.linearMultiply(currErrors, this.getDerivatives(memIndex)).getAsVector();
-		
 		super.addErrors(currErrors);
 	}
+	
+	*/
 	
 	/**
 	 * This function is responsible for correcting errors of the previous timestep.<br>
@@ -61,9 +61,7 @@ public class RecurrentLayer extends HiddenLayer{
 	protected void calcRecErrors(Matrix recMat, int memIndex) {
 		Matrix conT = Matrix.transpose(recMat);
 		
-		Vector futureErrors = new Vector(layerSize, Vector.FILL_ZERO);
-		
-		if(memIndex + 1 != memoryLength) futureErrors = this.getErrors(memIndex + 1);
+		Vector futureErrors = this.getErrors(memIndex + 1);
 		
 		Vector retroErrors = Matrix.multiply(conT, futureErrors).getAsVector();
 		retroErrors = super.removeBias(retroErrors);

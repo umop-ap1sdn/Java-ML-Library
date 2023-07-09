@@ -34,7 +34,7 @@ public class Vector extends Matrix {
 	public Vector(double[] vector){
 		//Calls the transpose function to 
 		super(ArrayFunctions.transpose(vector));
-		this.vector = vector;
+		this.vector = ArrayFunctions.copyArray(vector, vector.length);
 		
 	}
 	
@@ -46,7 +46,11 @@ public class Vector extends Matrix {
 	protected Vector(double[][] matrix){
 		super(matrix);
 		//1D vector array is created by transposing from 2D back to 1D
-		this.vector = ArrayFunctions.transpose1D(matrix);
+		
+		int rows = matrix.length;
+		int cols = matrix[0].length;
+		
+		this.vector = ArrayFunctions.transpose1D(ArrayFunctions.copyArray(matrix, rows, cols));
 		
 	}
 	
@@ -87,7 +91,7 @@ public class Vector extends Matrix {
 	 * @param vector 1D array to set the vector too
 	 */
 	public void setVector(double[] vector) {
-		this.vector = vector;
+		this.vector = ArrayFunctions.copyArray(vector, vector.length);
 		//Change to 2D array for parent class
 		super.setMatrix(ArrayFunctions.transpose(vector));
 	}
@@ -108,6 +112,7 @@ public class Vector extends Matrix {
 	 */
 	public void setValue(double value, int row) {
 		super.setValue(value, row, 0);
+		this.vector[row] = value;
 	}
 	
 	@Override

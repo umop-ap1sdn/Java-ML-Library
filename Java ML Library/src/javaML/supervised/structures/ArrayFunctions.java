@@ -68,8 +68,10 @@ public class ArrayFunctions {
 	}
 	
 	/**
-	 * Basic array function to create a deep copy of an array to ensure all data is unique
-	 * @param Matrix 2D array to copy from
+	 * Basic array function to create a deep copy of a 2 dimensional array to ensure all data is unique
+	 * @param matrix 2D array to copy from
+	 * @param rows number of rows in the matrix
+	 * @param columns number of columns in the matrix
 	 * @return Deep copied array of [matrix]
 	 */
 	protected static double[][] copyArray(double[][] matrix, int rows, int columns){
@@ -79,6 +81,22 @@ public class ArrayFunctions {
 			for(int col = 0; col < columns; col++) {
 				ret[row][col] = matrix[row][col];
 			}
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * Basic array function to create a deep copy of a 1 dimensional array to ensure all data is unique
+	 * @param matrix 1D array to copy from
+	 * @param rows number of rows in the matrix
+	 * @return Deep copied array of [matrix]
+	 */
+	protected static double[] copyArray(double[] vector, int rows) {
+		double[] ret = new double[rows];
+		
+		for(int row = 0; row < rows; row++) {
+			ret[row] = vector[row];
 		}
 		
 		return ret;

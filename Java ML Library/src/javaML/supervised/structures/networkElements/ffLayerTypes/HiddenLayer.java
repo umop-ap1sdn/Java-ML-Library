@@ -40,7 +40,7 @@ public class HiddenLayer extends NeuronLayer {
 	}
 	
 	@Override
-	protected void calculateErrors(Vector errorVec, Matrix errorMat, int memIndex) {
+	public void calculateErrors(Vector errorVec, Matrix errorMat, int memIndex) {
 		//dE/dY of a hidden layer by the chain rule will be equal to
 		//i is a node of the hidden layer
 		//j is a node of the next layer

@@ -37,6 +37,9 @@ public class Network {
 	
 	private double totalLoss = 0, averageLoss = 0;
 	
+	private boolean algorithmicLR;
+	private double algorithmicMax, algorithmicRate, algorithmicBias;
+	
 	/**
 	 * Constructor for use only by the NetworkBuilder class
 	 * @param input Input Layer
@@ -69,6 +72,12 @@ public class Network {
 		this.learning_rate = lr;
 	}
 	
+	public void setAlgorithmicLR(boolean set, double max, double rate, double bias) {
+		algorithmicLR = set;
+		algorithmicMax = max;
+		algorithmicRate = rate;
+		algorithmicBias = bias;
+	}
 	
 	//TODO add dataset uploading options for trend removing using differencing
 	//TODO add separation of dataset into training set and test set
@@ -160,6 +169,9 @@ public class Network {
 		
 		double loss = validate();
 		this.reset(true);
+		
+		if(algorithmicLR) learning_rate = algorithmicMax * (1 - Math.exp(-1 * loss * algorithmicRate))
+				+ algorithmicBias;
 		
 		return loss;
 	}

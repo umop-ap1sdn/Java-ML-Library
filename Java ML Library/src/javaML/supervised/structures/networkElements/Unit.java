@@ -1,5 +1,8 @@
 package javaML.supervised.structures.networkElements;
 
+import javaML.supervised.structures.Matrix;
+import javaML.supervised.structures.Vector;
+
 /**
  * The Unit class is an abstract structure designed to manage all parts of any particular layer.
  * As such it contains both the Neuron Layers and Connection Layers and is capable of performing 
@@ -122,18 +125,18 @@ public abstract class Unit {
 	
 	/**
 	 * Function to get the entry point (NeuronLayer) for the Unit
-	 * @return Returns the first NeuronLayer of the Unit
+	 * @return Returns the Vector to the first NeuronLayer of the Unit
 	 */
-	public NeuronLayer getEntry() {
-		return this.nLayers[0];
+	public Vector getEntryErrors(int memIndex) {
+		return this.nLayers[0].getErrors(memIndex);
 	}
 	
 	/**
 	 * Function to get the entry point (ConnectionLayer) for the Unit
-	 * @return Returns the ConnectionLayer which leads into the first NeuronLayer
+	 * @return Returns the Matrix of the ConnectionLayer which leads into the first NeuronLayer
 	 */
-	public ConnectionLayer getEntryConnections() {
-		return this.cLayers[0];
+	public Matrix getEntryMatrix() {
+		return this.cLayers[0].getMatrix();
 	}
 	
 	/**

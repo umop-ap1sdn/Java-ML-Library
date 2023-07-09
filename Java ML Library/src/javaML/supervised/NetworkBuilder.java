@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 import javaML.supervised.structures.networkElements.ConnectionLayer;
+import javaML.supervised.structures.networkElements.NeuronLayer;
 import javaML.supervised.structures.networkElements.Unit;
 import javaML.supervised.structures.networkElements.ffLayerTypes.HiddenLayer;
 import javaML.supervised.structures.networkElements.ffLayerTypes.HiddenUnit;
@@ -16,6 +17,8 @@ import javaML.supervised.structures.networkElements.ffLayerTypes.OutputUnit;
 import javaML.supervised.structures.networkElements.recurrent.RecurrentConnectionLayer;
 import javaML.supervised.structures.networkElements.recurrent.RecurrentLayer;
 import javaML.supervised.structures.networkElements.recurrent.RecurrentUnit;
+import javaML.supervised.structures.networkElements.recurrent.gru.GRU_Constructor;
+import javaML.supervised.structures.networkElements.recurrent.gru.GRU_Unit;
 
 /**
  * NetworkBuilder is a class to be declared by the Client program<br>
@@ -92,6 +95,8 @@ public class NetworkBuilder {
 			return putRecurrentLayer(layerSize, activation, bias);
 		case OUTPUT:
 			return putOutputLayer(layerSize, activation);
+		case GRU:
+			return putGRULayer(layerSize);
 		case INVALID:
 			return false;
 		}
@@ -141,6 +146,14 @@ public class NetworkBuilder {
 		return true;
 	}
 	
+	/**
+	 * Private function that is called by the putLayer() function when the layerType is declared as
+	 * a recurrent layer
+	 * @param layerSize Size of the layer, not including potential bias
+	 * @param activation Activation function to be used by the layer
+	 * @param bias boolean for whether a bias is included
+	 * @return true if the layer was successfully created
+	 */
 	private boolean putRecurrentLayer(int layerSize, Activation activation, boolean bias) {
 		if(!allowHidden) return false;
 		
@@ -154,6 +167,30 @@ public class NetworkBuilder {
 		RecurrentConnectionLayer rCon = new RecurrentConnectionLayer(rLayer);
 		
 		hiddenLayers.add(new RecurrentUnit(rLayer, con, rCon));
+		
+		return true;
+	}
+	
+	/**
+	 * Private function that is called by the putLayer() function when the layerType is declared as
+	 * a GRU layer.<br>
+	 * Activation and Bias do not need to be specified because the GRU structure already declares these parameters.
+	 * @param layerSize Size of the layer, not including potential bias
+	 * @return true if the layer was successfully created
+	 */
+	private boolean putGRULayer(int layerSize) {
+		if(!allowHidden) return false;
+		
+		GRU_Unit gru;
+		int prev = hiddenLayers.size() - 1;
+		
+		NeuronLayer prevLayer;
+		if(prev == -1) prevLayer = input;
+		else prevLayer = hiddenLayers.get(prev).getExit();
+		
+		gru = GRU_Constructor.construct(prevLayer, layerSize, memoryLength);
+		
+		hiddenLayers.add(gru);
 		
 		return true;
 	}

@@ -15,7 +15,8 @@ public enum LayerType {
 	INPUT(5), 		// Input Layer
 	HIDDEN(6), 		// Hidden Layer
 	RECURRENT(7), 	// Recurrent Layer
-	OUTPUT(8); 		// Output Layer
+	OUTPUT(8), 		// Output Layer
+	GRU(9);			// Gated Recurrent Unit Layer
 	
 
 	
@@ -50,6 +51,8 @@ public enum LayerType {
 			return RECURRENT;
 		case 8:
 			return OUTPUT;
+		case 9:
+			return GRU;
 		default:
 			return INVALID;
 		}

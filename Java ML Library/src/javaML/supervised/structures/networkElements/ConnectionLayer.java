@@ -177,6 +177,14 @@ public class ConnectionLayer {
 		this.layer = new Matrix(arr);
 	}
 	
+	/**
+	 * Function to set the layer Matrix
+	 * @param mat Matrix to be set
+	 */
+	public void setMatrix(Matrix mat) {
+		this.layer = mat;
+	}
+	
 	@Override
 	public String toString() {
 		return layer.toString() + "\n";

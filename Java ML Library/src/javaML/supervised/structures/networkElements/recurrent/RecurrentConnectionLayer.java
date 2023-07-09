@@ -2,6 +2,7 @@ package javaML.supervised.structures.networkElements.recurrent;
 
 import javaML.supervised.structures.Matrix;
 import javaML.supervised.structures.networkElements.ConnectionLayer;
+import javaML.supervised.structures.networkElements.ffLayerTypes.HiddenLayer;
 
 /**
  * The RecurrentConnectionLayer extension of the ConnectionLayer class is representative of Connections which lie
@@ -18,7 +19,7 @@ import javaML.supervised.structures.networkElements.ConnectionLayer;
 public class RecurrentConnectionLayer extends ConnectionLayer{
 	
 	final RecurrentLayer rLayerSrc;
-	final RecurrentLayer rLayerDest;
+	final HiddenLayer rLayerDest;
 	
 	/**
 	 * Constructor for simple RecurrentLayers in which the ConnectionLayer will lead to and from the same basic
@@ -29,6 +30,18 @@ public class RecurrentConnectionLayer extends ConnectionLayer{
 		super(layer);
 		this.rLayerSrc = layer;
 		this.rLayerDest = layer;
+	}
+	
+	/**
+	 * Constructor for a more specialized RecurrentConnectionLayer typically found in advanced recurrent models
+	 * such as GRUs or LSTMs
+	 * @param src RecurrentLayer source will always be necessary
+	 * @param dest destination can be any type of HiddenLayer
+	 */
+	public RecurrentConnectionLayer(RecurrentLayer src, HiddenLayer dest) {
+		super(src, dest);
+		this.rLayerSrc = src;
+		this.rLayerDest = dest;
 	}
 	
 	@Override
