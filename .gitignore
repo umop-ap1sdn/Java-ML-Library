@@ -1,6 +1,7 @@
 *.class
 .classpath
 .project
-.settings
+.settings/
 bin/
 tests/
+files/
