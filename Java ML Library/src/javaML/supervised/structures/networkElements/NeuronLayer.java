@@ -246,6 +246,7 @@ public abstract class NeuronLayer {
 	
 	/**
 	 * Function to add finalize and add the errorVec to the list of memorized error values
+	 * @param memIndex specific time index to put errors to
 	 */
 	public void putErrors(int memIndex) {
 		errors.set(memIndex, errorVec);

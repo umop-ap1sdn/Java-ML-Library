@@ -28,6 +28,14 @@ public class ConnectionLayer {
 	protected final NeuronLayer destination;
 	protected Matrix layer;
 	
+	//Variables for Adam Adaptive learning rate
+	
+	private Matrix m_t, v_t;
+	private Matrix iteration;
+	private final double BETA_1 = 0.9, BETA_2 = 0.999;
+	private final double EPSILON = 1e-4;
+	
+	
 	//Nearly Identical constructors that each control how ConnectionLayers are allowed to be defined
 	
 	/**
@@ -100,6 +108,10 @@ public class ConnectionLayer {
 		
 		// Initialize all matrix values to random
 		layer = new Matrix(destSize, sourceSize, Matrix.FILL_RANDOM);
+		
+		iteration = new Matrix(destSize, sourceSize, Matrix.FILL_ZERO);
+		m_t = new Matrix(destSize, sourceSize, Matrix.FILL_ZERO);
+		v_t = new Matrix(destSize, sourceSize, Matrix.FILL_ZERO);
 	}
 	
 	/**
@@ -127,22 +139,49 @@ public class ConnectionLayer {
 		// Triple nested for loop :( O(n^3)
 		for(int row = 0; row < destSize; row++) {
 			for(int col = 0; col < sourceSize; col++) {
-				double gradient = 0;
+				double adamErr = 0;
 				
 				// Last loop goes through NeuronLayer memory to backpropagate through all timesteps still in memory
 				for(int count = 0; count < source.getMemoryLength(); count++) {
 					
 					// Gradient is equal to the sum of source values multiplied by the destination errors
-					gradient += source.getValues(count).getValue(col) * destination.getErrors(count).getValue(row);
+					double gradient = source.getValues(count).getValue(col) * destination.getErrors(count).getValue(row);
+					
+					
+					/*********************************************
+					 * 
+					 * EXPERIMENTAL
+					 * Introduce ADAM (Adaptive moment estimation)
+					 * Adaptive Learning Rate Optimization
+					 * 
+					 *********************************************/
+					
+					int currIteration = (int) iteration.getValue(row, col) + 1;
+					
+					iteration.setValue(currIteration, row, col);
+					iteration.setValue(Math.min(currIteration, 100000), row, col);
+					
+					double m = m_t.getValue(row, col) * BETA_1 + (1 - BETA_1) * gradient;
+					double v = v_t.getValue(row, col) * BETA_2 + (1 - BETA_2) * Math.pow(gradient, 2);
+					
+					m_t.setValue(m, row, col);
+					v_t.setValue(v, row, col);
+					
+					double m_hat = m / (1 - Math.pow(BETA_1, currIteration));
+					double v_hat = v / (1 - Math.pow(BETA_2, currIteration));
+					
+					adamErr += m_hat / (Math.sqrt(v_hat) + EPSILON);
+					
 				}
 				
 				// Scale by lr
-				gradient *= -lr;
-				gradients.setValue(gradient, row, col);
+				adamErr *= -lr;
+				gradients.setValue(adamErr, row, col);
 			}
 		}
 		
 		layer = Matrix.add(layer, gradients);
+		
 	}
 	
 	/**

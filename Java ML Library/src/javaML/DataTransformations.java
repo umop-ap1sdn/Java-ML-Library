@@ -33,6 +33,45 @@ public final class DataTransformations {
 	}
 	
 	/**
+	 * Simple function to create a deep copy of a 2 dimensional double array
+	 * @param data 2D array to be copied
+	 * @return Copied 2D array that can be modified without affecting the original
+	 */
+	public static double[][] deepCopy(double[][] data){
+		double[][] dataCopy = new double[data.length][data[0].length];
+		
+		for(int x = 0; x < data.length; x++) {
+			for(int y = 0; y < data[x].length; y++) {
+				dataCopy[x][y] = data[x][y];
+			}
+		}
+		
+		return dataCopy;
+	}
+	
+	/**
+	 * Function to transform a basic 2D array into a labeled Time Series Dataset.<br>
+	 * The implication is that the user should invoke this function with sequential data as input.
+	 * The function then creates a dataset array where the input is one time-step and the target
+	 * output is the time-step from one iteration in the future
+	 * @param data 2D array representing sequential data
+	 * @return 3D dataset array of the reformatted input data
+	 */
+	public static double[][][] generateTimeSeriesDataset(double[][] data){
+		double[][] dataCopy1 = deepCopy(data);
+		double[][] dataCopy2 = deepCopy(data);
+		
+		double[][][] dataset = new double[data.length - 1][2][data[0].length];
+		
+		for(int i = 0; i < dataset.length; i++) {
+			dataset[i][0] = dataCopy1[i];
+			dataset[i][1] = dataCopy2[i + 1];
+		}
+		
+		return dataset;
+	}
+	
+	/**
 	 * Function to normalize a dataset to a specified range
 	 * @param dataset 3D array to be normalized
 	 * @param min Desired minimum
@@ -80,7 +119,7 @@ public final class DataTransformations {
 					outputMax[indey] = dataset[index][1][indey];
 				
 				if(dataset[index][1][indey] < outputMin[indey]) 
-					outputMin[indey] = dataset[index][0][indey];
+					outputMin[indey] = dataset[index][1][indey];
 				
 			}
 		}
@@ -190,7 +229,7 @@ public final class DataTransformations {
 	 * Using this function with with a typical dataset array consisting of {{input[t]}, {target[t + 1]}} 
 	 * vectors, the first datapoint is erased to create an new array with the format 
 	 * {{input[t], input[t - 1}, {target[t + 1]}}.<br>
-	 * As an example, a dataset with { { {1}, {1} }, { {2}, {2} } will become { { { 2, 1}, {2} } }
+	 * As an example, a dataset with { { {1}, {1} }, { {2}, {2} } will become { { {2, 1}, {2} } }
 	 * @param dataset Dataset to be transformed
 	 * @param deepCopy Set to true to deep copy the dataset array
 	 * @return transformed dataset array
@@ -198,10 +237,10 @@ public final class DataTransformations {
 	public static double[][][] contextualInput(double[][][] dataset, boolean deepCopy){
 		if(deepCopy) dataset = deepCopy(dataset);
 		
-		double[][][] ret = new double[dataset.length - 1][2][];
+		double[][][] ret = new double[dataset.length - 2][2][];
 		
 		for(int i = 0; i < ret.length; i++) {
-			ret[i][1] = dataset[i + 1][1];
+			ret[i][1] = dataset[i + 2][1];
 			
 			ret[i][0] = new double[dataset[i][0].length * 2];
 			

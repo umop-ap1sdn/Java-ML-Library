@@ -37,15 +37,15 @@ public class Network {
 	
 	private double totalLoss = 0, averageLoss = 0;
 	
-	private boolean algorithmicLR;
-	private double algorithmicMax, algorithmicRate, algorithmicBias;
+	private boolean algorithmicLR = false;
+	private double algorithmicMax = 0, algorithmicMin = 0;
+	private int algorithmicIt = 0;
 	
 	/**
 	 * Constructor for use only by the NetworkBuilder class
 	 * @param input Input Layer
 	 * @param output Output Layer
 	 * @param hiddenLayers Array for Hidden Layers
-	 * @param cLayers Array for Connection Layers
 	 * @param batchSize value for number of training steps between pauses
 	 * @param memoryLength value for how deep the memory of neuron layers go
 	 */
@@ -72,11 +72,21 @@ public class Network {
 		this.learning_rate = lr;
 	}
 	
-	public void setAlgorithmicLR(boolean set, double max, double rate, double bias) {
+	/**
+	 * Function to set an algorithmic (scheduling) learning rate.<br>
+	 * Only effective if training using the trainEpoch() function
+	 * @param set If set to true, the algorithmic process will automatically occur
+	 * @param max Starting learning rate value
+	 * @param min Ending learning rate value
+	 * @param iterations Number of iterations that will be used for training
+	 */
+	public void setAlgorithmicLR(boolean set, double max, double min, int iterations) {
+		learning_rate = max;
+		
 		algorithmicLR = set;
 		algorithmicMax = max;
-		algorithmicRate = rate;
-		algorithmicBias = bias;
+		algorithmicMin = min;
+		algorithmicIt = iterations;
 	}
 	
 	//TODO add dataset uploading options for trend removing using differencing
@@ -162,6 +172,14 @@ public class Network {
 		return overflow;
 	}
 	
+	/**
+	 * Function to automatically train through an entire dataset one time
+	 * @param backProp set to true if backpropagation is desired
+	 * @param dependency if set to true, backpropagation will be restricted if memory has not been filled
+	 * with relevant data<br>
+	 * Will be used with RNN's that should only be backpropagated if the memory is full
+	 * @return Loss calculated through a validation check immediately after the epoch is finished
+	 */
 	public double trainEpoch(boolean backProp, boolean dependency) {
 		for(int i = 0; i * batchSize < dataSize; i++) {
 			train(backProp, dependency);
@@ -170,8 +188,7 @@ public class Network {
 		double loss = validate();
 		this.reset(true);
 		
-		if(algorithmicLR) learning_rate = algorithmicMax * (1 - Math.exp(-1 * loss * algorithmicRate))
-				+ algorithmicBias;
+		if(algorithmicLR) learning_rate -= (algorithmicMax - algorithmicMin) / algorithmicIt;
 		
 		return loss;
 	}
@@ -188,10 +205,15 @@ public class Network {
 		return train(backProp, dependency, batchSize);
 	}
 	
+	/**
+	 * Function to perform a basic validation of the current network by performing MSE on the
+	 * validation training set
+	 * @return Average error of each of the validation tests
+	 */
 	public double validate() {
 		totalLoss = 0;
 		averageLoss = 0;
-		double[] output;
+		double[] output = new double[0];
 		
 		for(double[][] data: validationData) {
 			output = test(data[0]);

@@ -39,7 +39,9 @@ public class UpdateLayer extends GRU_InternalLayer {
 	 * For the update layer, its error vectors are the output vector of the
 	 * intermediate layer and the output vector of the output layer of the 
 	 * previous timestep.
-	 * @param update auxiliary vector containing values for error calculation
+	 * @param intermediate first auxiliary vector containing values for error calculation
+	 * @param previous second auxiliary vector containing values for error calculation
+	 * 
 	 */
 	protected void setErrorVectors(Vector intermediate, Vector previous) {
 		this.intermediate = new Vector(intermediate.getVector());

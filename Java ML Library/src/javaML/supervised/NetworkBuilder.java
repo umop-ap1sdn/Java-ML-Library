@@ -246,7 +246,8 @@ public class NetworkBuilder {
 	
 	/**
 	 * Writes a file for given network<br>
-	 * This allows the user to save a trained network for later use
+	 * This allows the user to save a trained network for later use.<br><br>
+	 * File is written in a local directory named files/networks/ and a .nn extension is added automatically
 	 * @param network The network to be saved
 	 * @param fileName The name of the file to write to (extension = .nn)
 	 * @param avoidOverwriting If true, program will add a number to the end of the file name to ensure no

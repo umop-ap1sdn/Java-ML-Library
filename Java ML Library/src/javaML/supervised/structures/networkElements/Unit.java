@@ -125,6 +125,7 @@ public abstract class Unit {
 	
 	/**
 	 * Function to get the entry point (NeuronLayer) for the Unit
+	 * @param memIndex specific index to get errors from
 	 * @return Returns the Vector to the first NeuronLayer of the Unit
 	 */
 	public Vector getEntryErrors(int memIndex) {
